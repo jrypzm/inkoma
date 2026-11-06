@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+stills/
+check/
+*.mp4
+*.wav
+timing.json
+reels.json
+outliers.json

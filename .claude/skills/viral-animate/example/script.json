@@ -1,0 +1,50 @@
+{
+  "title": "One percent",
+  "language": "ml",
+  "label": "YOUR PHONE AT 1%",
+  "style": {
+    "accent": "#D2E640"
+  },
+  "beats": [
+    {
+      "id": "b1",
+      "say": "നിങ്ങളുടെ phone-ന്റെ charge *1%* ആയാൽ നിങ്ങൾ എന്ത് ചെയ്യും?",
+      "scene": "A phone flat on a dark table, its screen red, 1% blinking."
+    },
+    {
+      "id": "b2",
+      "say": "ഉള്ള പണിയെല്ലാം നിർത്തി നേരെ *charger* തേടി ഓടും, അല്ലേ?",
+      "scene": "A cable races across the table and plugs in. The battery bar fills green."
+    },
+    {
+      "id": "b3",
+      "say": "പക്ഷേ നിങ്ങൾ തന്നെ *1%* ആയാലോ?",
+      "scene": "A dark room. One hanging bulb, almost out, flickering."
+    },
+    {
+      "id": "b4",
+      "say": "അപ്പോ ഒരു *ചായ* കുടിച്ചിട്ട് പിന്നെയും പണി തുടരും, ഉറക്കം പോലും നാളത്തേക്ക് മാറ്റി വെക്കും.",
+      "scene": "A desk at night. Tea, books stacking up, the clock spinning past midnight, the bulb still dim."
+    },
+    {
+      "id": "b5",
+      "say": "ഒരു phone-ന് കൊടുക്കുന്ന *care* എങ്കിലും നിങ്ങൾക്ക് നിങ്ങളോട് തന്നെ കാണിച്ചൂടെ?",
+      "scene": "A plug slides into a wall socket. The bulb swells to full and warms the room."
+    }
+  ],
+  "sfx": [
+    {
+      "beat": "b2",
+      "word": "charger",
+      "kind": "pop",
+      "db": -13
+    },
+    {
+      "beat": "b5",
+      "at": 0.55,
+      "kind": "click",
+      "db": -11
+    }
+  ],
+  "sources": []
+}

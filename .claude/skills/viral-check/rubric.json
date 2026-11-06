@@ -1,0 +1,17 @@
+{
+  "how_to_score": "Score each question 0, 1 or 2 from hook.jpg, sheet.jpg and the script. 0 is no, 1 is partly, 2 is clearly yes. Quote what you saw.",
+  "weak_if": "The total is under 8 of 12, or question 1 or 2 scores 0.",
+  "questions": [
+    { "id": 1, "ask": "With the sound off, does frame 0 tell a stranger what this is about?", "why": "Most people decide before they hear a word." },
+    { "id": 2, "ask": "Does the first spoken sentence land the claim, number or conflict within about 14 words?", "why": "A hook that warms up first loses the viewer before it starts." },
+    { "id": 3, "ask": "Would someone who has never heard of this account or niche care?", "why": "Non-followers are where the reach comes from. Insider words shut them out." },
+    { "id": 4, "ask": "Does the picture move in the first second, and does it show the same thing the words say?", "why": "A still opening reads as a slideshow. Picture and words that disagree read as noise." },
+    { "id": 5, "ask": "Does the hook open a question that only the end of the reel closes, and does the reel really close it?", "why": "That gap is the reason to keep watching. A hook the reel doesn't pay off earns the scroll next time." },
+    { "id": 6, "ask": "Are the captions and label easy to read, clear of the red zones, and not covering the main object?", "why": "Red zones sit under Instagram's own buttons." }
+  ],
+  "also_check": [
+    "Every number and claim has a source in script.json, and the reel doesn't promise views or results.",
+    "No drawn people or animals unless the user asked for them.",
+    "If the voice is AI, remind the user to use Instagram's AI label when it applies."
+  ]
+}

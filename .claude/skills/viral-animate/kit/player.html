@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>player</title>
+<script type="importmap">
+{ "imports": { "three": "/vendor/three/build/three.module.js", "three/addons/": "/vendor/three/examples/jsm/" } }
+</script>
+<style>
+@font-face { font-family: 'Noto Sans Malayalam'; font-weight: 700; src: url('/vendor/@fontsource/noto-sans-malayalam/files/noto-sans-malayalam-malayalam-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans Malayalam'; font-weight: 900; src: url('/vendor/@fontsource/noto-sans-malayalam/files/noto-sans-malayalam-malayalam-900-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 800; src: url('/vendor/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 800; src: url('/vendor/@fontsource/inter/files/inter-latin-800-normal.woff2') format('woff2'); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+canvas#c { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+#vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 46%, transparent 52%, rgba(0,0,0,.42) 100%); }
+#label { position: absolute; left: 90px; right: 90px; top: 250px; text-align: center; text-wrap: balance; font: 800 62px/1.22 'Inter', 'Noto Sans Malayalam', sans-serif; color: #fff; text-shadow: 0 3px 22px rgba(0,0,0,.65); }
+#cap { position: absolute; left: 0; right: 0; top: var(--cap-y, 1240px); display: flex; justify-content: center; }
+#pill { display: none; flex: none; width: max-content; align-items: center; gap: 15px; padding: 15px 30px; border-radius: 16px; background: #0A0C0D; white-space: nowrap; box-shadow: 0 8px 28px rgba(0,0,0,.4); transform-origin: center; }
+#pill span { color: #fff; }
+#pill .ml { font: 900 46px/1.25 'Noto Sans Malayalam', sans-serif; }
+#pill .lat { font: 800 48px/1.25 'JetBrains Mono', 'Noto Sans Malayalam', monospace; text-transform: uppercase; }
+#pill .plain { font: 800 48px/1.25 'Inter', 'Noto Sans Malayalam', sans-serif; }
+#pill .hot { color: var(--accent, #D2E640); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vignette"></div>
+<div id="label"></div>
+<div id="cap"><div id="pill"></div></div>
+<script type="module" src="/kit/player.js"></script>
+</body>
+</html>

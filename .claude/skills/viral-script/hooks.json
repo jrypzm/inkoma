@@ -1,0 +1,17 @@
+{
+  "note": "Formulas for the first line. Use the shape, never the words of a reel you studied. 'seen' is a real view count from a reel using this shape, as a sign of the shape's reach, not a promise.",
+  "formulas": [
+    { "name": "The kill", "shape": "[Tool or trend] just killed [thing everyone knows].", "best_for": "Tools and news", "example": "Claude just murdered LinkedIn." },
+    { "name": "The number", "shape": "[Big number] from [one small thing], without [what people assume you need].", "best_for": "Proof that a method works", "example": "One reel, 115 million views, without showing a face.", "seen": "115.9M is a real reel; the sentence is ours" },
+    { "name": "The proof", "shape": "[Tool] made one [thing]. [Number] in [time].", "best_for": "A real result you can show", "example": "A reel made with Claude got 6.5 million views in a month." },
+    { "name": "It happened to me", "shape": "[Tool or person] did [surprising thing] to me.", "best_for": "Personal stories", "example": "Claude deleted me from the internet." },
+    { "name": "I'll prove it", "shape": "[Thing] is [blunt claim]. I'll prove it.", "best_for": "Myth busting", "example": "Claude is a yes-man. I'll prove it." },
+    { "name": "The question nobody asked", "shape": "A question the viewer can't answer but now wants to.", "best_for": "Reflective, wide-audience stories", "example": "How many people did it take to make you?", "seen": "25.9M" },
+    { "name": "The real-life why", "shape": "Why does [annoying everyday thing] keep happening?", "best_for": "Anything the viewer has lived through", "example": "Where do loan callers get your number from?" },
+    { "name": "Normal people vs", "shape": "[Label]: then show the behaviour.", "best_for": "Humour and self-recognition", "example": "Normal people:", "seen": "29.4M" },
+    { "name": "Two sides", "shape": "[Word A] | [Word B], shown side by side.", "best_for": "Mindset and habits, pure visual", "example": "Motivation | Consistency", "seen": "13.7M" },
+    { "name": "The private moment", "shape": "What [someone close] did when [they thought you weren't looking].", "best_for": "Family and love. Send-to-someone reels", "example": "What your mother said when she thought you were asleep.", "seen": "16.6M" },
+    { "name": "Instant recognition", "shape": "A tiny moment everyone knows, described exactly.", "best_for": "Work and everyday humour", "example": "You explain it clearly in an email, then you hear that call sound.", "seen": "1.9M" },
+    { "name": "The object truth", "shape": "[Everyday object] gets [care]. You don't.", "best_for": "Object-based stories, which this pack draws best", "example": "Your phone at 1% gets a charger straight away. You at 1% get another cup of tea." }
+  ]
+}
