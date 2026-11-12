@@ -90,6 +90,11 @@ tasks.test {
     dependsOn(":test-extension:jar")
     systemProperty("testExtensionJar", project(":test-extension").layout.buildDirectory.file("libs/test-extension.jar").get().asFile.absolutePath)
     jvmArgs("-Xmx512m")
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = true
+    }
 }
 
 tasks.processResources {
