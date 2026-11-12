@@ -1,0 +1,42 @@
+#!/bin/sh
+# Inkoma AppImage entry point.
+HERE="$(dirname "$(readlink -f "$0")")"
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/inkoma"
+mkdir -p "$CACHE"
+VERSION="$(cat "$HERE/usr/lib/app/VERSION" 2>/dev/null || echo dev)"
+
+# HiDPI: Java does not follow the desktop scale on X11 by itself. Use INKOMA_SCALE, else GDK_SCALE, else the
+# Cinnamon/GNOME scaling factor, else Xft.dpi / 96.
+SCALE="${INKOMA_SCALE:-}"
+if [ -z "$SCALE" ] && [ -n "${GDK_SCALE:-}" ]; then SCALE="$GDK_SCALE"; fi
+if [ -z "$SCALE" ] && command -v gsettings >/dev/null 2>&1; then
+  for schema in org.cinnamon.desktop.interface org.gnome.desktop.interface; do
+    F="$(gsettings get "$schema" scaling-factor 2>/dev/null | awk '{print $NF}')"
+    if [ -n "$F" ] && [ "$F" != "0" ]; then SCALE="$F"; break; fi
+  done
+fi
+if [ -z "$SCALE" ] && command -v xrdb >/dev/null 2>&1; then
+  DPI="$(xrdb -query 2>/dev/null | awk '/^Xft\.dpi:/ {print $2}')"
+  if [ -n "$DPI" ]; then SCALE="$(awk -v d="$DPI" 'BEGIN { s = d / 96; if (s < 1) s = 1; printf "%.2f", s }')"; fi
+fi
+SCALE_OPT=""
+if [ -n "$SCALE" ]; then SCALE_OPT="-Dsun.java2d.uiScale=$SCALE"; fi
+
+# JVM tuned for a small, steady footprint:
+#  SerialGC (no GC threads), C1 only (smaller code cache, fast warm-up), a heap that shrinks back when idle,
+#  and an AppCDS archive created on first launch and reused afterwards (first frame < 1 s once warm).
+exec "$HERE/usr/lib/runtime/bin/java" \
+  -Xms16m -Xmx320m \
+  -XX:+UseSerialGC \
+  -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 \
+  -XX:TieredStopAtLevel=1 -XX:CICompilerCount=1 \
+  -XX:ReservedCodeCacheSize=48m \
+  -XX:MaxMetaspaceSize=160m \
+  -Xss512k \
+  -XX:+AutoCreateSharedArchive -XX:SharedArchiveFile="$CACHE/app-$VERSION.jsa" \
+  $SCALE_OPT \
+  -Dsun.java2d.xrender=true \
+  -Dawt.useSystemAAFontSettings=on \
+  -Dfile.encoding=UTF-8 \
+  -cp "$HERE/usr/lib/app/*" \
+  inkoma.MainKt "$@"

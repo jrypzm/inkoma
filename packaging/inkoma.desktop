@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Inkoma
+GenericName=Manga reader
+Comment=Free and open source manga reader
+Exec=AppRun %U
+Icon=inkoma
+Terminal=false
+Categories=Graphics;Viewer;
+StartupWMClass=inkoma-MainKt

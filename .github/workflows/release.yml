@@ -1,0 +1,152 @@
+name: Release
+
+# Builds Linux (AppImage), Windows (MSI + portable ZIP) and macOS (DMG for Apple Silicon and Intel) and publishes
+# them in one GitHub release. Run it from the Actions tab ("Run workflow", enter a version) or push a tag like
+# v1.2.0; the tag and release are created automatically.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release (without the "v"), e.g. 1.1.0
+        required: true
+        default: 1.0.0
+
+permissions:
+  contents: write
+
+env:
+  VERSION: ${{ inputs.version || github.ref_name }}
+
+jobs:
+  linux:
+    name: Linux AppImage
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Version
+        run: echo "V=${VERSION#v}" >> "$GITHUB_ENV"
+      - name: Test
+        run: ./gradlew :app:test -PdesktopVersion=$V --console=plain
+      - name: Build AppImage
+        # The bundled runtime is jlinked from Temurin 21 (old glibc): runs on Ubuntu 22.04 / Mint 21 and newer.
+        env:
+          GRADLE_ARGS: -PdesktopVersion=${{ env.V }}
+        run: packaging/build-appimage.sh
+      - name: Collect
+        run: |
+          mkdir -p out
+          mv dist/Inkoma-*-x86_64.AppImage "out/Inkoma-$V-linux-x86_64.AppImage"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: out/*
+
+  windows:
+    name: Windows MSI + portable ZIP
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Version
+        shell: bash
+        run: echo "V=${VERSION#v}" >> "$GITHUB_ENV"
+      - name: Build
+        shell: bash
+        run: ./gradlew :app:packageMsi :app:createDistributable -PdesktopVersion=$V --console=plain
+      - name: Collect
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          $msi = Get-ChildItem -Recurse app/build/compose/binaries/main/msi -Filter *.msi | Select-Object -First 1
+          Copy-Item $msi.FullName "out/Inkoma-$env:V-windows-x64.msi"
+          Compress-Archive -Path "app/build/compose/binaries/main/app/Inkoma" -DestinationPath "out/Inkoma-$env:V-windows-x64-portable.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/*
+
+  macos:
+    name: macOS ${{ matrix.arch }} DMG
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Version
+        run: echo "V=${VERSION#v}" >> "$GITHUB_ENV"
+      - name: Build
+        run: ./gradlew :app:packageDmg -PdesktopVersion=$V --console=plain
+      - name: Collect
+        run: |
+          mkdir -p out
+          DMG=$(find app/build/compose/binaries/main/dmg -name '*.dmg' | head -1)
+          cp "$DMG" "out/Inkoma-$V-macos-${{ matrix.arch }}.dmg"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.arch }}
+          path: out/*
+
+  publish:
+    name: Publish release
+    needs: [linux, windows, macos]
+    # Publish whatever built, as long as the Linux build succeeded.
+    if: ${{ !cancelled() && needs.linux.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Checksums
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          echo "V=${VERSION#v}" >> "$GITHUB_ENV"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.V }}
+          target_commitish: ${{ github.sha }}
+          name: Inkoma v${{ env.V }}
+          files: artifacts/*
+          body: |
+            Inkoma: a manga reader for Linux, Windows and macOS that runs Mihon extensions. Based on Mihon; not affiliated with the Mihon project.
+
+            | System | Download |
+            |---|---|
+            | Linux (x86_64) | `Inkoma-${{ env.V }}-linux-x86_64.AppImage` |
+            | Windows (64-bit) | `Inkoma-${{ env.V }}-windows-x64.msi` (installer) or `…-windows-x64-portable.zip` |
+            | macOS Apple Silicon | `Inkoma-${{ env.V }}-macos-arm64.dmg` |
+            | macOS Intel | `Inkoma-${{ env.V }}-macos-x64.dmg` |
+
+            **Linux:** `chmod +x Inkoma-*.AppImage && ./Inkoma-*.AppImage` (glibc 2.17+: Ubuntu 22.04, Mint 21 or newer).
+
+            **Windows:** run the MSI, or unzip the portable ZIP and start `Inkoma.exe`. The app isn't code-signed yet,
+            so SmartScreen may say "Windows protected your PC": click **More info → Run anyway**.
+
+            **macOS:** open the DMG and drag Inkoma to Applications. The app isn't notarized yet; on first launch
+            right-click the app → **Open**, or run `xattr -dr com.apple.quarantine "/Applications/Inkoma.app"`.
+
+            Verify downloads with `SHA256SUMS.txt`.
