@@ -38,5 +38,6 @@ exec "$HERE/usr/lib/runtime/bin/java" \
   -Dsun.java2d.xrender=true \
   -Dawt.useSystemAAFontSettings=on \
   -Dfile.encoding=UTF-8 \
+  -Djava.net.useSystemProxies=true \
   -cp "$HERE/usr/lib/app/*" \
   inkoma.MainKt "$@"

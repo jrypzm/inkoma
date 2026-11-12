@@ -164,9 +164,9 @@ class ExtensionManager(
         }
         val target = ExtensionLoader.apkFile(dir, meta.pkgName)
         Files.copy(apk.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        val jar = ExtensionLoader.jarFile(dir, meta.pkgName)
-        jar.delete()
-        ExtensionLoader.convertApkToJar(target, jar)
+        // A new file per version: the previous version's jar may still be open (and locked on Windows).
+        val jar = ExtensionLoader.jarFile(dir, meta.pkgName, meta.versionCode)
+        if (!jar.exists()) ExtensionLoader.convertApkToJar(target, jar)
         ExtensionLoader.writeMetadata(dir, meta)
     }
 
@@ -181,9 +181,8 @@ class ExtensionManager(
         scope.launch {
             _installed.value.firstOrNull { it.pkgName == pkgName }?.let { (it.classLoader as? java.io.Closeable)?.close() }
             listOf(
-                ExtensionLoader.apkFile(dir, pkgName), ExtensionLoader.jarFile(dir, pkgName),
-                ExtensionLoader.metaFile(dir, pkgName), ExtensionLoader.iconFile(dir, pkgName),
-            ).forEach { it.delete() }
+                ExtensionLoader.apkFile(dir, pkgName), ExtensionLoader.metaFile(dir, pkgName), ExtensionLoader.iconFile(dir, pkgName),
+            ).plus(ExtensionLoader.allJars(dir, pkgName)).forEach { it.delete() }
             preferences.trustedExtensions.set(preferences.trustedExtensions.get().filterNot { it.startsWith("$pkgName:") }.toSet())
             loadInstalled()
         }

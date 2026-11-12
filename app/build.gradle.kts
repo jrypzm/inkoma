@@ -87,6 +87,8 @@ compose.desktop {
             "-Xms16m", "-Xmx320m", "-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1",
             "-XX:ReservedCodeCacheSize=48m", "-XX:MaxMetaspaceSize=160m", "-Xss512k",
             "-XX:MinHeapFreeRatio=10", "-XX:MaxHeapFreeRatio=20", "-Dfile.encoding=UTF-8",
+            // Use the OS proxy settings (Windows/macOS/GNOME), like browsers do.
+            "-Djava.net.useSystemProxies=true",
         )
         nativeDistributions {
             // Linux ships as an AppImage (packaging/build-appimage.sh); Windows and macOS use jpackage.

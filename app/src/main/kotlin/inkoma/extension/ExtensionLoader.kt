@@ -54,19 +54,24 @@ object ExtensionLoader {
 
     fun apkFile(dir: File, pkg: String) = File(dir, "$pkg.apk")
     /**
-     * Converted jar. The name carries [CONVERTER_VERSION] so jars produced by an older, broken converter are
-     * regenerated from the stored APK instead of being reused.
+     * Converted jar of one extension version. The name carries the extension's version code, so an update never has to
+     * overwrite a jar that is still open (Windows locks jars held by a class loader), and [CONVERTER_VERSION], so jars
+     * produced by an older, broken converter are regenerated from the stored APK instead of being reused.
      */
-    fun jarFile(dir: File, pkg: String) = File(dir, "$pkg.d2j$CONVERTER_VERSION.jar")
+    fun jarFile(dir: File, pkg: String, versionCode: Long) = File(dir, "$pkg.v$versionCode.d2j$CONVERTER_VERSION.jar")
 
     private const val CONVERTER_VERSION = 8
 
-    /** Deletes converted jars from previous converter versions. */
-    fun deleteStaleJars(dir: File, pkg: String) {
-        val stale = Regex("^" + Regex.escape(pkg) + "(\\.d2j\\d+)?\\.jar$")
-        val current = jarFile(dir, pkg).name
-        dir.listFiles { f -> f.name != current && stale.matches(f.name) }?.forEach { it.delete() }
+    private fun jarPattern(pkg: String) = Regex("^" + Regex.escape(pkg) + "(\\.v\\d+)?(\\.d2j\\d+)?\\.jar$")
+
+    /** Deletes this extension's other converted jars (older versions or converters). Jars still open stay until next time. */
+    fun deleteStaleJars(dir: File, pkg: String, keep: File) {
+        val pattern = jarPattern(pkg)
+        dir.listFiles { f -> f.name != keep.name && pattern.matches(f.name) }?.forEach { it.delete() }
     }
+
+    /** Every converted jar of [pkg] (used when uninstalling). */
+    fun allJars(dir: File, pkg: String): List<File> = jarPattern(pkg).let { p -> dir.listFiles { f -> p.matches(f.name) }?.toList().orEmpty() }
     fun metaFile(dir: File, pkg: String) = File(dir, "$pkg.json")
     fun iconFile(dir: File, pkg: String) = File(dir, "$pkg.png")
 
@@ -229,8 +234,8 @@ object ExtensionLoader {
         val classes = meta.sourceClasses
         if (classes.isNullOrBlank()) return notLoaded(Extension.NotLoaded.Reason.Malformed)
 
-        val jar = jarFile(dir, pkg)
-        deleteStaleJars(dir, pkg)
+        val jar = jarFile(dir, pkg, meta.versionCode)
+        deleteStaleJars(dir, pkg, keep = jar)
         if (!jar.exists()) {
             try {
                 convertApkToJar(apkFile(dir, pkg), jar)

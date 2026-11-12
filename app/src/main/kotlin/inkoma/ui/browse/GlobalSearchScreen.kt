@@ -88,7 +88,7 @@ class GlobalSearchScreen(initialQuery: String) : Screen() {
                             SourceResult.Success(withContext(Dispatchers.IO) { page.mangas.map { Inkoma.mangaInteractor.networkToLocal(src.id, it) } })
                         } catch (e: Throwable) {
                             if (e is kotlinx.coroutines.CancellationException) throw e
-                            SourceResult.Error(e.message ?: e.javaClass.simpleName)
+                            SourceResult.Error(inkoma.core.ErrorMessages.describe(e))
                         }
                     }
                 }

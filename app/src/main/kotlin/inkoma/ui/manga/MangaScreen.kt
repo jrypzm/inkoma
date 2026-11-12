@@ -96,7 +96,7 @@ class MangaScreen(private val mangaId: Long) : Screen() {
             try {
                 Inkoma.mangaInteractor.refresh(manga, fetchDetails = true, fetchChapters = true, manual = manual)
             } catch (e: Throwable) {
-                onError(e.message ?: e.javaClass.simpleName)
+                onError(inkoma.core.ErrorMessages.describe(e))
             } finally {
                 refreshing = false
             }

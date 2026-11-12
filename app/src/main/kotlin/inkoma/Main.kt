@@ -16,6 +16,8 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 fun main() {
+    // Use the OS proxy settings like browsers do (read once by java.net.ProxySelector, so set it before any networking).
+    if (System.getProperty("java.net.useSystemProxies") == null) System.setProperty("java.net.useSystemProxies", "true")
     Logger.getLogger("").level = if (System.getenv("INKOMA_DEBUG") != null) Level.FINE else Level.WARNING
     Inkoma.init()
 

@@ -4,14 +4,19 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Build and test
-    runs-on: ubuntu-latest
+    name: Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -23,7 +28,20 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Test
+        shell: bash
+        env:
+          # Also checks that the app's HTTP client reaches a real source API on this OS.
+          INKOMA_NETWORK_TEST: '1'
         run: ./gradlew :app:test --console=plain
 
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: app/build/reports/tests/
+
       - name: Assemble
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
         run: ./gradlew :app:assembleDist --console=plain

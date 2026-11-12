@@ -169,7 +169,7 @@ class ReaderScreen(private val mangaId: Long, private val initialChapterId: Long
                 pendingJump = startIndex
                 withContext(Dispatchers.IO) { Inkoma.historyRepository.upsert(ch.id, System.currentTimeMillis(), 0) }
             } catch (e: Throwable) {
-                error = e.message ?: e.javaClass.simpleName
+                error = inkoma.core.ErrorMessages.describe(e)
             } finally {
                 loading = false
             }
@@ -663,7 +663,7 @@ class ReaderScreen(private val mangaId: Long, private val initialChapterId: Long
             }
             result.isFailure -> Box(modifier.then(if (webtoon) Modifier.height(400.dp) else Modifier), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(result.exceptionOrNull()?.message ?: "Error", color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
+                    Text(result.exceptionOrNull()?.let { inkoma.core.ErrorMessages.describe(it) } ?: "Error", color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
                     Button(onClick = { retry++ }, modifier = Modifier.padding(top = 8.dp)) { Text("Retry") }
                 }
             }

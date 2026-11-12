@@ -130,7 +130,7 @@ class BrowseSourceScreen(private val sourceId: Long, listing: Listing, initialQu
                 page++
             } catch (e: Throwable) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                error = e.message ?: e.javaClass.simpleName
+                error = inkoma.core.ErrorMessages.describe(e)
             } finally {
                 loading = false
             }
