@@ -3,12 +3,14 @@ package inkoma
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.launch
 import inkoma.ui.InkomaApp
+import inkoma.ui.WindowControls
+import inkoma.ui.WindowFullscreen
+import androidx.compose.runtime.remember
 import inkoma.ui.AppKeyEvents
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -42,12 +44,16 @@ fun main() {
             icon = painterResource("icons/inkoma.png"),
             onPreviewKeyEvent = { AppKeyEvents.dispatch(it) },
         ) {
-            InkomaApp(
-                isFullscreen = state.placement == WindowPlacement.Fullscreen,
-                setFullscreen = { full -> state.placement = if (full) WindowPlacement.Fullscreen else WindowPlacement.Floating },
-                minimize = { state.isMinimized = true },
-                close = ::exitApplication,
-            )
+            val fullscreen = remember { WindowFullscreen(window, state) }
+            val controls = remember {
+                WindowControls(
+                    isFullscreen = { fullscreen.isFullscreen },
+                    setFullscreen = fullscreen::set,
+                    minimize = fullscreen::minimize,
+                    close = ::exitApplication,
+                )
+            }
+            InkomaApp(controls)
         }
     }
 }

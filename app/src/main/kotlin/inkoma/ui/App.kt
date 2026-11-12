@@ -62,7 +62,7 @@ import inkoma.ui.updates.UpdatesTab
 
 val LocalSnackbar = staticCompositionLocalOf<SnackbarHostState> { error("No snackbar host") }
 
-/** Fullscreen toggle exposed to the reader. */
+/** Window actions (fullscreen, minimize, close). [isFullscreen] reads snapshot state, so callers recompose on change. */
 class WindowControls(
     val isFullscreen: () -> Boolean,
     val setFullscreen: (Boolean) -> Unit,
@@ -158,7 +158,7 @@ class HomeScreen : Screen() {
 }
 
 @Composable
-fun InkomaApp(isFullscreen: Boolean, setFullscreen: (Boolean) -> Unit, minimize: () -> Unit = {}, close: () -> Unit = {}) {
+fun InkomaApp(controls: WindowControls) {
     val themeMode by Inkoma.preferences.themeMode.changes().collectAsState(Inkoma.preferences.themeMode.get())
     val amoled by Inkoma.preferences.themeDarkAmoled.changes().collectAsState(Inkoma.preferences.themeDarkAmoled.get())
     val navigator = remember { Navigator(HomeScreen()) }
@@ -166,7 +166,6 @@ fun InkomaApp(isFullscreen: Boolean, setFullscreen: (Boolean) -> Unit, minimize:
     navigator.onRemoved = { stateHolder.removeState(it.stateKey) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val controls = remember(isFullscreen) { WindowControls({ isFullscreen }, setFullscreen, minimize, close) }
 
     LaunchedEffect(Unit) {
         if (System.getenv("INKOMA_DEBUG") != null) {
@@ -218,7 +217,7 @@ fun InkomaApp(isFullscreen: Boolean, setFullscreen: (Boolean) -> Unit, minimize:
                                 }
                             }
                         }
-                        if (isFullscreen) FullscreenBar(controls)
+                        if (controls.isFullscreen()) FullscreenBar(controls)
                     }
                 }
             }
