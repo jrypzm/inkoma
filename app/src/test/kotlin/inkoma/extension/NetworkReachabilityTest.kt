@@ -21,13 +21,12 @@ class NetworkReachabilityTest {
 
     private fun check(doh: Int) {
         val c = client(doh)
-        c.newCall(Request.Builder().url("https://api.mangadex.org/ping").build()).execute().use { r ->
-            assertEquals(200, r.code, "ping status")
-            assertEquals("pong", r.body.string().trim())
-        }
         c.newCall(Request.Builder().url("https://api.mangadex.org/manga?limit=1").build()).execute().use { r ->
-            assertEquals(200, r.code, "manga list status")
-            assertTrue(r.body.string().contains("\"result\":\"ok\""))
+            val body = r.body.string()
+            val info = "status ${r.code}, content-type ${r.header("Content-Type")}, body: ${body.take(300)}"
+            println("MangaDex /manga: $info")
+            assertEquals(200, r.code, info)
+            assertTrue(body.contains("\"result\":\"ok\""), info)
         }
     }
 

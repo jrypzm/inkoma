@@ -27,7 +27,7 @@ kotlin {
 val appVersionName = "0.19.3"
 
 /** Desktop release version (MAJOR > 0 is required by macOS/Windows installers). Override with -PdesktopVersion=x.y.z. */
-val desktopVersion: String = (findProperty("desktopVersion") as String?)?.takeIf { it.isNotBlank() } ?: "1.0.1"
+val desktopVersion: String = (findProperty("desktopVersion") as String?)?.takeIf { it.isNotBlank() } ?: "1.0.2"
 val appVersionCode = 14
 
 val dexIrOriginal: Configuration by configurations.creating { isTransitive = false }
