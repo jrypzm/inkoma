@@ -6,7 +6,7 @@
 
 ### Your manga library, on the big screen.
 
-**Inkoma** (*ink* + *koma*, the panel of a manga page) is a free, open-source manga reader for **Linux, Windows and macOS**.
+**Inkoma** is a free, open-source manga reader for **Linux, Windows and macOS**.
 It runs the **same extensions as Mihon on Android**, so you can install a source, browse, download and read in one app.
 No browser, no server, no setup.
 
