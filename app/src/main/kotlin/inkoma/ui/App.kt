@@ -72,6 +72,13 @@ class WindowControls(
 
 val LocalWindowControls = staticCompositionLocalOf<WindowControls> { error("No window controls") }
 
+/** A web link passed on the command line (`inkoma https://…`); opened in the built-in browser once the app is set up. */
+object StartupLink {
+    @Volatile var url: String? = null
+
+    fun take(): String? = url.also { url = null }
+}
+
 /** Global key handling: the top-most handler wins (reader registers its own). */
 object AppKeyEvents {
     private val handlers = ArrayList<(KeyEvent) -> Boolean>()
@@ -205,6 +212,9 @@ fun InkomaApp(controls: WindowControls) {
             ) {
                 Scaffold(snackbarHost = { SnackbarHost(snackbar) }, containerColor = MaterialTheme.colorScheme.background) { _ ->
                     var onboarded by remember { mutableStateOf(Inkoma.preferences.onboardingComplete.get()) }
+                    LaunchedEffect(onboarded) {
+                        if (onboarded) StartupLink.take()?.let { navigator.push(inkoma.ui.browser.BrowserScreen(it)) }
+                    }
                     Box(Modifier.fillMaxSize()) {
                         Column(Modifier.fillMaxSize()) {
                             if (onboarded) ProgressBanner()

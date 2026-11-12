@@ -397,8 +397,13 @@ class SettingsAdvancedScreen : SettingsPage("Advanced") {
             scope.launch { snackbar.showSnackbar("Cookies cleared") }
         }
         val doh by p.dohProvider.changes().collectAsState(p.dohProvider.get())
-        ListPreferenceWidget("DNS over HTTPS (DoH)", doh, NetworkHelper.DOH_PROVIDERS, subtitle = NetworkHelper.DOH_PROVIDERS.firstOrNull { it.first == doh }?.second + " (requires restart)") {
+        ListPreferenceWidget(
+            "DNS over HTTPS (DoH)", doh, NetworkHelper.DOH_PROVIDERS,
+            subtitle = (NetworkHelper.DOH_PROVIDERS.firstOrNull { it.first == doh }?.second ?: "") +
+                ". Gets around sites being blocked by your network's DNS; applies to sources and the built-in browser.",
+        ) {
             p.dohProvider.set(it)
+            inkoma.core.net.DnsSettings.provider = it
         }
         val ua by p.defaultUserAgent.changes().collectAsState(p.defaultUserAgent.get())
         EditTextPreferenceWidget("Default user agent string", ua, ua) { v ->
@@ -457,7 +462,7 @@ class SettingsAdvancedScreen : SettingsPage("Advanced") {
 class AboutScreen : SettingsPage("About") {
     @Composable
     override fun Items() {
-        val uri = LocalUriHandler.current
+        val navigator = LocalNavigator.current
         Box(Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
             Text("Inkoma", style = MaterialTheme.typography.headlineLarge)
         }
@@ -465,7 +470,7 @@ class AboutScreen : SettingsPage("About") {
         TextPreferenceWidget("Version", "${BuildInfo.versionName} (Linux desktop)")
         TextPreferenceWidget("Extension API", "extensions-lib 1.4 and 1.6")
         TextPreferenceWidget("Data directory", AppDirs.data.absolutePath)
-        TextPreferenceWidget("Website", "https://github.com/jrypzm/inkoma") { runCatching { uri.openUri("https://github.com/jrypzm/inkoma") } }
+        TextPreferenceWidget("Website", "https://github.com/jrypzm/inkoma") { navigator.push(inkoma.ui.browser.BrowserScreen("https://github.com/jrypzm/inkoma", "Inkoma")) }
         TextPreferenceWidget("Open source licenses", "Apache License 2.0 (Mihon, Tachiyomi, dex2jar), SIL OFL 1.1 (Roboto)")
     }
 }

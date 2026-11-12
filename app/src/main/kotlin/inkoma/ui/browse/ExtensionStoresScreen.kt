@@ -75,7 +75,7 @@ class ExtensionStoresScreen : Screen() {
                                         Text(store.name, style = MaterialTheme.typography.titleMedium)
                                         Text(store.indexUrl, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
-                                    IconButton(onClick = { runCatching { uri.openUri(store.contactWebsite) } }) { Icon(InkomaIcons.Public, "Website") }
+                                    IconButton(onClick = { navigator.push(inkoma.ui.browser.BrowserScreen(store.contactWebsite, store.name)) }) { Icon(InkomaIcons.Public, "Website") }
                                     IconButton(onClick = { clipboard.setText(AnnotatedString(store.indexUrl)) }) { Icon(InkomaIcons.Edit, "Copy URL") }
                                     IconButton(onClick = { deleting = store }) { Icon(InkomaIcons.Delete, "Delete") }
                                 }

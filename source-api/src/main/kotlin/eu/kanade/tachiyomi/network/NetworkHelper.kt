@@ -4,12 +4,9 @@ import eu.kanade.tachiyomi.network.interceptor.CloudflareInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UncaughtExceptionInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UserAgentInterceptor
 import okhttp3.Cache
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
-import okhttp3.dnsoverhttps.DnsOverHttps
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
-import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
 /**
@@ -37,14 +34,8 @@ class NetworkHelper(
         if (verboseLogging) {
             builder.addNetworkInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.HEADERS })
         }
-        dohUrl(dohProvider)?.let { (url, hosts) ->
-            val bootstrap = OkHttpClient.Builder().build()
-            builder.dns(
-                DnsOverHttps.Builder().client(bootstrap).url(url.toHttpUrl())
-                    .bootstrapDnsHosts(hosts.map { InetAddress.getByName(it) })
-                    .build(),
-            )
-        }
+        // DNS over HTTPS ([dohProvider]) is applied process-wide by the app's name resolver, so the system resolver used
+        // here (and by the embedded browser) already honours it.
         // Same layout as Mihon's client: extensions assert that Uncaught/UserAgent/Cloudflare interceptors are present
         // and that no Brotli/IgnoreGzip network interceptor is (they add their own decompression).
         builder.addInterceptor(CloudflareInterceptor()).build()
@@ -58,6 +49,9 @@ class NetworkHelper(
 
     companion object {
         const val PREF_DOH_DISABLED = -1
+
+        /** Cloudflare, then Google, then Quad9, then the system resolver: works on networks that block sites by DNS. */
+        const val PREF_DOH_AUTO = 0
         const val PREF_DOH_CLOUDFLARE = 1
         const val PREF_DOH_GOOGLE = 2
         const val PREF_DOH_ADGUARD = 3
@@ -72,6 +66,7 @@ class NetworkHelper(
         const val PREF_DOH_SHECAN = 12
 
         val DOH_PROVIDERS: List<Pair<Int, String>> = listOf(
+            PREF_DOH_AUTO to "Automatic (recommended)",
             PREF_DOH_DISABLED to "Disabled",
             PREF_DOH_CLOUDFLARE to "Cloudflare",
             PREF_DOH_GOOGLE to "Google",
@@ -87,7 +82,8 @@ class NetworkHelper(
             PREF_DOH_SHECAN to "Shecan",
         )
 
-        private fun dohUrl(provider: Int): Pair<String, List<String>>? = when (provider) {
+        /** DoH endpoint and its bootstrap IP addresses, or null for "disabled"/"automatic". */
+        fun dohUrl(provider: Int): Pair<String, List<String>>? = when (provider) {
             PREF_DOH_CLOUDFLARE -> "https://cloudflare-dns.com/dns-query" to listOf("162.159.36.1", "162.159.46.1", "1.1.1.1", "1.0.0.1")
             PREF_DOH_GOOGLE -> "https://dns.google/dns-query" to listOf("8.8.4.4", "8.8.8.8")
             PREF_DOH_ADGUARD -> "https://dns-unfiltered.adguard.com/dns-query" to listOf("94.140.14.140", "94.140.14.141")

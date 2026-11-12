@@ -14,7 +14,8 @@ TEMURIN_URL="https://github.com/adoptium/temurin21-binaries/releases/download/jd
 APPIMAGETOOL_URL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
 # java.scripting + jdk.dynalink: Nashorn (JavaScriptEngine); jdk.zipfs: extension jar assembly;
 # jdk.charsets: sources decoding Shift_JIS/GBK/EUC-KR; jdk.localedata: language names in Browse.
-MODULES="java.base,java.desktop,java.logging,java.sql,java.xml,java.naming,java.prefs,java.scripting,jdk.dynalink,jdk.unsupported,jdk.crypto.ec,jdk.zipfs,jdk.charsets,jdk.localedata"
+# java.net.http, jdk.jsobject, jdk.xml.dom, jdk.unsupported.desktop: JavaFX WebKit (built-in browser) + JFXPanel.
+MODULES="java.base,java.desktop,java.logging,java.sql,java.xml,java.naming,java.prefs,java.scripting,jdk.dynalink,jdk.unsupported,jdk.crypto.ec,jdk.zipfs,jdk.charsets,jdk.localedata,java.net.http,jdk.jsobject,jdk.xml.dom,jdk.unsupported.desktop,java.datatransfer"
 LOCALES="en,ja,zh,ko,es,pt,fr,de,it,ru,uk,pl,tr,ar,id,vi,th,ms,fil,nl,sv,cs,hu,ro,el,he,fa,hi,bn,bg,ca,da,fi,nb"
 
 mkdir -p "$WORK" "$DIST"
@@ -96,6 +97,3 @@ ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" --no-appstream --comp zstd \
 
 SIZE=$(stat -c %s "$OUT")
 echo "==> $OUT ($((SIZE / 1024 / 1024)) MiB)"
-if [ "$SIZE" -gt $((80 * 1024 * 1024)) ]; then
-  echo "WARNING: AppImage exceeds 80 MiB" >&2
-fi

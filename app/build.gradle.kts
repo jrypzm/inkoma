@@ -26,6 +26,18 @@ kotlin {
 
 val appVersionName = "0.19.3"
 
+/** JavaFX (built-in browser) natives for the OS/CPU the build runs on, like compose.desktop.currentOs. */
+val javafxVersion = "21.0.13"
+val javafxPlatform: String = run {
+    val os = System.getProperty("os.name").lowercase()
+    val arm = System.getProperty("os.arch").lowercase().let { it == "aarch64" || it == "arm64" }
+    when {
+        os.contains("win") -> "win"
+        os.contains("mac") -> if (arm) "mac-aarch64" else "mac"
+        else -> if (arm) "linux-aarch64" else "linux"
+    }
+}
+
 /** Desktop release version (MAJOR > 0 is required by macOS/Windows installers). Override with -PdesktopVersion=x.y.z. */
 val desktopVersion: String = (findProperty("desktopVersion") as String?)?.takeIf { it.isNotBlank() } ?: "1.0.2"
 val appVersionCode = 14
@@ -50,6 +62,12 @@ dependencies {
     implementation(compose.material3)
     implementation(compose.foundation)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.11.0")
+
+    // Built-in browser: JavaFX WebKit, embedded with JFXPanel. Only loaded when the browser is opened.
+    // Not transitive: the openjfx POMs pick the platform with a Maven property Gradle can't evaluate.
+    listOf("base", "graphics", "controls", "media", "web", "swing").forEach {
+        implementation("org.openjfx:javafx-$it:$javafxVersion:$javafxPlatform") { isTransitive = false }
+    }
 
     // Persistence: SQLite through JDBC (Mihon uses SQLite through SQLDelight).
     implementation("org.xerial:sqlite-jdbc:3.50.3.0")
@@ -103,6 +121,8 @@ compose.desktop {
                 "java.base", "java.desktop", "java.logging", "java.sql", "java.xml", "java.naming", "java.prefs",
                 "java.scripting", "jdk.dynalink", "jdk.unsupported", "jdk.crypto.ec", "jdk.zipfs", "jdk.charsets",
                 "jdk.localedata",
+                // JavaFX WebKit (built-in browser) and its Swing bridge.
+                "java.net.http", "jdk.jsobject", "jdk.xml.dom", "jdk.unsupported.desktop", "java.datatransfer",
             )
             windows {
                 iconFile.set(rootProject.file("packaging/icons/inkoma.ico"))

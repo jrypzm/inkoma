@@ -326,7 +326,7 @@ class MangaScreen(private val mangaId: Long) : Screen() {
                         }
                         val url = runCatching { (source as? HttpSource)?.getMangaUrl(m.toSManga()) }.getOrNull()
                         if (url != null) {
-                            ActionButton("WebView", InkomaIcons.Public, false) { runCatching { uriHandler.openUri(url) } }
+                            ActionButton("WebView", InkomaIcons.Public, false) { navigator.push(inkoma.ui.browser.BrowserScreen(url, m.title)) }
                         }
                     }
                 }

@@ -145,7 +145,7 @@ class AppPreferences(store: PreferenceStore) {
 
     // Advanced / network
     val defaultUserAgent = store.getString("default_user_agent", DEFAULT_USER_AGENT)
-    val dohProvider = store.getInt("doh_provider", NetworkHelper.PREF_DOH_DISABLED)
+    val dohProvider = store.getInt("doh_provider", NetworkHelper.PREF_DOH_AUTO)
     val verboseLogging = store.getBoolean("verbose_logging", false)
 
     // Desktop

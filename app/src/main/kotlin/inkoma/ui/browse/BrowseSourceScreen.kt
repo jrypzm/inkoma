@@ -184,7 +184,7 @@ class BrowseSourceScreen(private val sourceId: Long, listing: Listing, initialQu
                                 IconButton(onClick = { menu = true }) { Icon(InkomaIcons.MoreVert, "More") }
                                 DropdownMenu(menu, onDismissRequest = { menu = false }) {
                                     (src as? HttpSource)?.let { http ->
-                                        DropdownMenuItem(text = { Text("Open in WebView") }, onClick = { menu = false; runCatching { uri.openUri(http.getHomeUrl()) } })
+                                        DropdownMenuItem(text = { Text("Open in WebView") }, onClick = { menu = false; navigator.push(inkoma.ui.browser.BrowserScreen(http.getHomeUrl(), http.name)) })
                                     }
                                     if (src is ConfigurableSource) {
                                         DropdownMenuItem(text = { Text("Settings") }, onClick = { menu = false; navigator.push(SourcePreferencesScreen(src.id)) })
@@ -213,7 +213,7 @@ class BrowseSourceScreen(private val sourceId: Long, listing: Listing, initialQu
                     visible.isEmpty() && error != null -> EmptyScreen(error ?: "") {
                         Row {
                             TextButton(onClick = { reset() }) { Text("Retry") }
-                            (src as? HttpSource)?.let { http -> TextButton(onClick = { runCatching { uri.openUri(http.getHomeUrl()) } }) { Text("Open in WebView") } }
+                            (src as? HttpSource)?.let { http -> TextButton(onClick = { navigator.push(inkoma.ui.browser.BrowserScreen(http.getHomeUrl(), http.name)) }) { Text("Open in WebView") } }
                         }
                     }
                     visible.isEmpty() -> EmptyScreen("No results found")

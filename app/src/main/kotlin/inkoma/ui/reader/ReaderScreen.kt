@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -117,6 +118,14 @@ class ReaderScreen(private val mangaId: Long, private val initialChapterId: Long
     private var startIndex = 0
     private var sessionStart = System.currentTimeMillis()
     private var pendingJump: Int? = null
+
+    /** The current chapter's page on the source's website (for the built-in browser), or null for local sources. */
+    private fun chapterWebUrl(): String? {
+        val m = manga ?: return null
+        val ch = current ?: return null
+        val source = Inkoma.sourceManager.getOrStub(m.source) as? eu.kanade.tachiyomi.source.online.HttpSource ?: return null
+        return runCatching { source.getChapterUrl(ch.toSChapter()) }.getOrNull()?.takeIf { it.startsWith("http") }
+    }
 
     /** Set when the series has no explicit reading mode and its pages are long vertical strips. */
     private var detectedWebtoon by mutableStateOf(false)
@@ -414,7 +423,12 @@ class ReaderScreen(private val mangaId: Long, private val initialChapterId: Long
             when {
                 error != null -> Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(error ?: "", color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
-                    Button(onClick = { load(current?.id ?: initialChapterId) }, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+                    Row(Modifier.padding(top = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { load(current?.id ?: initialChapterId) }) { Text("Retry") }
+                        chapterWebUrl()?.let { url ->
+                            OutlinedButton(onClick = { navigator.push(inkoma.ui.browser.BrowserScreen(url, current?.name)) }) { Text("Read on website") }
+                        }
+                    }
                 }
                 loading && items.isEmpty() -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 m != null -> {
@@ -505,6 +519,9 @@ class ReaderScreen(private val mangaId: Long, private val initialChapterId: Long
                         IconButton(onClick = {
                             current?.let { c -> Inkoma.mangaInteractor.setBookmark(listOf(c), !c.bookmark); current = c.copy(bookmark = !c.bookmark) }
                         }) { Icon(if (current?.bookmark == true) InkomaIcons.Bookmark else InkomaIcons.BookmarkBorder, "Bookmark") }
+                        chapterWebUrl()?.let { url ->
+                            IconButton(onClick = { navigator.push(inkoma.ui.browser.BrowserScreen(url, current?.name)) }) { Icon(InkomaIcons.Public, "Open chapter in browser") }
+                        }
                         IconButton(onClick = { window.setFullscreen(!window.isFullscreen()) }) { Icon(InkomaIcons.Fullscreen, "Fullscreen") }
                     }
                 }

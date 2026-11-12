@@ -8,7 +8,7 @@
 
 **Inkoma** is a free, open-source manga reader for **Linux, Windows and macOS**.
 It runs the **same extensions as Mihon on Android**, so you can install a source, browse, download and read in one app.
-No browser, no server, no setup.
+Everything happens inside the app, including a built-in browser. No server, no setup.
 
 [![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 [![Release](../../actions/workflows/release.yml/badge.svg)](../../releases/latest)
@@ -31,7 +31,9 @@ No browser, no server, no setup.
   reading progress between your phone and your PC in both directions.
 - **Made for a real screen.** Two-page spreads that follow the window shape, true fullscreen, keyboard shortcuts,
   mouse-wheel page turns and a two-pane manga page on wide windows.
-- **Light on your machine.** About 130 MB of RAM when idle, under a second to start once warm, and a single ~80 MB download.
+- **Works on restrictive networks.** Site addresses are looked up with DNS over HTTPS automatically, so sources blocked by your
+  network's DNS still work, in the extensions and in the built-in browser.
+- **Light on your machine.** About 130 MB of RAM when idle and a fast start; the built-in browser only loads when you open it.
 
 ## Install
 
@@ -72,6 +74,7 @@ Data folders: Linux `~/.local/share/inkoma`, Windows `%APPDATA%\Inkoma`, macOS `
 - ✨ Image quality and sharpening, filters (brightness, contrast, night tint, grayscale, invert) and a smart background
 - 🧠 Automatic webtoon detection, maximum page width for ultrawide screens, per-series reader settings
 - 🔔 Desktop notifications with cover art, grouped updates, source categories and HiDPI support
+- 🌐 Built-in browser: open a source, a series or the current chapter on its website without leaving the app
 
 ## Extensions
 
@@ -124,8 +127,9 @@ packaging/        AppImage build script, AppRun (JVM flags), desktop entry.
 
 ## Known differences from Android
 
-* **No WebView.** "Open in WebView" opens the system browser, and Cloudflare-protected sources that need an interactive challenge won't work.
-  Mihon's CloudflareInterceptor depends on Android's WebView, and bundling a browser engine would break the size budget.
+* **Built-in browser instead of Android's WebView.** "Open in WebView" (and "Read on website" in the reader) opens the page in
+  Inkoma's built-in browser (JavaFX WebKit). It shares cookies, user agent and DNS with the sources, so logging in or passing
+  a Cloudflare check there is used by the extension. Extensions that drive an Android WebView in code still can't run.
 * Local source supports folders, `.zip`/`.cbz` and `.epub`. It does not support `.rar`/`.cbr`/`.7z`, which would need native libarchive.
 * Extensions that touch Android APIs beyond the provided stubs fail to load and show "Failed to load" with the error, as on Android.
   Provided stubs: `Context`/`SharedPreferences`, `Uri`, `Base64`, `Log`, `Html`, `TextUtils`, `Toast`, `Build`, `SystemClock`,
@@ -147,7 +151,7 @@ packaging/        AppImage build script, AppRun (JVM flags), desktop entry.
   `NewTransformer` keeps the allocated type, and the constructors R8 removed are re-synthesized.
 * The default HTTP client now matches Mihon's (Uncaught/UserAgent/Cloudflare interceptors, no Brotli network
   interceptor); extensions threw "must be present in default client" before.
-* AppImage: Temurin runtime (natives need glibc ≤ 2.17), launched under Xvfb: first frame 1.4 s, RSS ≈ 130 MB, 78.3 MiB.
+* AppImage: Temurin runtime (natives need glibc ≤ 2.17), launched under Xvfb: first frame ≈ 1.5 s, RSS ≈ 130 MB idle (≈ 310 MB with the built-in browser open), 129.6 MiB.
 
 ## Contributing
 

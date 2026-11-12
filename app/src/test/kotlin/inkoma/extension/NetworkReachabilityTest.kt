@@ -20,6 +20,8 @@ class NetworkReachabilityTest {
     }
 
     private fun check(doh: Int) {
+        // DNS over HTTPS is applied process-wide by the app's resolver (DohResolver), like in the app.
+        inkoma.core.net.DnsSettings.provider = doh
         val c = client(doh)
         c.newCall(Request.Builder().url("https://api.mangadex.org/manga?limit=1").build()).execute().use { r ->
             val body = r.body.string()
@@ -38,5 +40,10 @@ class NetworkReachabilityTest {
     @Test
     fun mangaDexThroughDnsOverHttps() {
         if (enabled) check(NetworkHelper.PREF_DOH_CLOUDFLARE)
+    }
+
+    @Test
+    fun mangaDexAutomaticDns() {
+        if (enabled) check(NetworkHelper.PREF_DOH_AUTO)
     }
 }

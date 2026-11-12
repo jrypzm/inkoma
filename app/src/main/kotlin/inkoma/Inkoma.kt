@@ -68,6 +68,8 @@ object Inkoma {
         val appPrefs: SharedPreferences = application.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         preferenceStore = PreferenceStore(appPrefs)
         preferences = AppPreferences(preferenceStore)
+        // Before any network use: every DNS lookup in the app follows this setting (see DohResolver).
+        inkoma.core.net.DnsSettings.provider = preferences.dohProvider.get()
 
         network = NetworkHelper(
             cacheDir = application.getCacheDir(),
