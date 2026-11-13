@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import inkoma.Inkoma
-import inkoma.core.ErrorMessages
 import inkoma.ui.components.AppBar
 import inkoma.ui.navigation.LocalNavigator
 import inkoma.ui.navigation.Screen
@@ -100,9 +99,22 @@ class BrowserScreen(private val url: String, private val initialTitle: String? =
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
+            val details = error?.let { inkoma.core.AppLog.details(it) }
             Text("The built-in browser could not start on this system.", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
-            error?.let { Text(ErrorMessages.describe(it), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp)) }
-            TextButton(onClick = { runCatching { uri.openUri(url) } }, modifier = Modifier.padding(top = 16.dp)) { Text("Open in system browser") }
+            details?.let {
+                androidx.compose.foundation.text.selection.SelectionContainer {
+                    Text(it, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
+                }
+            }
+            androidx.compose.foundation.layout.Row(Modifier.padding(top = 16.dp)) {
+                if (details != null) {
+                    TextButton(onClick = {
+                        clipboard.setText(androidx.compose.ui.text.AnnotatedString("$details\n\n${System.getProperty("os.name")} ${System.getProperty("os.version")}, Java ${System.getProperty("java.version")}"))
+                    }) { Text("Copy error details") }
+                }
+                TextButton(onClick = { runCatching { uri.openUri(url) } }) { Text("Open in system browser") }
+            }
         }
     }
 

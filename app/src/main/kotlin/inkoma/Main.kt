@@ -20,6 +20,7 @@ fun main(args: Array<String> = emptyArray()) {
     // Use the OS proxy settings like browsers do (read once by java.net.ProxySelector, so set it before any networking).
     if (System.getProperty("java.net.useSystemProxies") == null) System.setProperty("java.net.useSystemProxies", "true")
     Logger.getLogger("").level = if (System.getenv("INKOMA_DEBUG") != null) Level.FINE else Level.WARNING
+    inkoma.core.AppLog.install(Logger.getLogger("").level)
     Inkoma.init()
 
     // Rendering backend: software rasterizer by default (no GPU driver mapped into the process: lower RSS).

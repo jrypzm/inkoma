@@ -52,7 +52,10 @@ class EmbeddedBrowser(private val userAgent: String, cookieJar: AndroidCookieJar
         // Keep the JavaFX runtime alive after the last browser closes, so the browser can be opened again.
         Platform.setImplicitExit(false)
         Platform.runLater {
-            runCatching { createView() }.onFailure { e -> ui { error = "The page view could not be created: ${e.message ?: e.javaClass.simpleName}" } }
+            runCatching { createView() }.onFailure { e ->
+                java.util.logging.Logger.getLogger("EmbeddedBrowser").log(java.util.logging.Level.WARNING, "Page view could not be created", e)
+                ui { error = "The page view could not be created: ${inkoma.core.AppLog.details(e)}" }
+            }
         }
     }
 
